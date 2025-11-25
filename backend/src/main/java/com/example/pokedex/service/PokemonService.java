@@ -82,7 +82,7 @@ public class PokemonService {
 
             while (offset < 2000) {
                 String url = "https://pokeapi.co/api/v2/pokemon?limit=" + limit + "&offset=" + offset;
-                String response = pokeApiClient.getPokemonRaw(url);
+                String response = pokeApiClient.fetchUrl(url);
                 if (response == null) break;
 
                 ObjectMapper mapper = new ObjectMapper();

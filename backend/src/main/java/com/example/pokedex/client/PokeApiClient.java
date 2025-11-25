@@ -30,4 +30,15 @@ public class PokeApiClient {
             return null;
         }
     }
+
+    public String fetchUrl(String url) {
+        try {
+            return restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(String.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
