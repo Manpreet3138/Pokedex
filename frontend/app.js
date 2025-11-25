@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/pokemon";
+const API_BASE = "/api/pokemon";
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
