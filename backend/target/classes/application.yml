@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+pokedex:
+  cache:
+    maxEntries: 200
+    ttlMillis: 600000  # 10 minutes
+  pokeapi:
+    baseUrl: "https://pokeapi.co/api/v2"
