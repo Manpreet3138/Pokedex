@@ -1,6 +1,0 @@
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/PokedexApplication.java
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/cache/CacheEntry.java
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/cache/LruCache.java
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/client/PokeApiClient.java
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/controller/PokemonController.java
-/home/runner/workspace/backend/src/main/java/com/example/pokedex/service/PokemonService.java

@@ -1,7 +1,0 @@
-com/example/pokedex/PokedexApplication.class
-com/example/pokedex/controller/PokemonController.class
-com/example/pokedex/cache/LruCache$1.class
-com/example/pokedex/service/PokemonService.class
-com/example/pokedex/cache/LruCache.class
-com/example/pokedex/client/PokeApiClient.class
-com/example/pokedex/cache/CacheEntry.class
