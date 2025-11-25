@@ -2,11 +2,20 @@
 
 ## Overview
 
-This is a full-stack Pokédex application that allows users to search for Pokémon by name or ID. The backend is built with Java and Spring Boot, serving as a proxy/cache layer to the public PokéAPI. The frontend is a vanilla JavaScript single-page application with a modern, dark-themed UI. The application implements an in-memory LRU cache with TTL expiration to optimize API calls and reduce load on the external PokéAPI service.
+This is a full-stack Pokédex application that allows users to search for Pokémon by name or ID. The backend is built with Java and Spring Boot, serving as a proxy/cache layer to the public PokéAPI. The frontend is a vanilla JavaScript single-page application with a modern, dark-themed UI with a Pokémon background. The application implements an in-memory LRU cache with TTL expiration to optimize API calls and reduce load on the external PokéAPI service.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (November 25, 2025)
+
+- Added image download feature: Users can download official Pokémon artwork to their device
+- Reduced box opacity to 50% for better background visibility
+- Added Pokémon background image (collage with Ash, Pikachu, and various Pokémon)
+- Implemented multi-Pokémon search (comma-separated names/IDs)
+- Removed subtitle and hint text lines for cleaner UI
+- Changed "Pokédex" title to dark blue
 
 ## System Architecture
 
@@ -23,8 +32,8 @@ Preferred communication style: Simple, everyday language.
 - **Problem**: Reduce latency and external API calls to PokéAPI
 - **Solution**: Implemented an LRU (Least Recently Used) cache with time-to-live expiration
 - **Configuration**: Cache parameters are configurable via `application.yml`:
-  - `maxEntries` - Maximum number of cached entries
-  - `ttlMillis` - Time-to-live for cached entries in milliseconds
+  - `maxEntries` - Maximum number of cached entries (default: 200)
+  - `ttlMillis` - Time-to-live for cached entries in milliseconds (default: 600000 / 10 minutes)
 - **Tradeoffs**: Memory usage vs. performance/API rate limits
 
 ### Frontend Architecture
@@ -33,15 +42,23 @@ Preferred communication style: Simple, everyday language.
 - **Purpose**: Simple, dependency-free single-page application
 - **Rationale**: No build step required, easy to deploy and modify. Sufficient for the application's requirements without framework overhead.
 - **Features**:
+  - Multi-Pokémon search with comma-separated input (e.g., "pikachu, charizard, 25")
   - Real-time search with Enter key support
-  - Support for multiple comma-separated Pokémon searches
   - Error handling for failed API requests
   - Loading states for better UX
+  - Image download functionality for Pokémon artwork
+  - Responsive grid layout for multiple cards
 
 **Communication**: RESTful API calls to backend
 - Uses the Fetch API for asynchronous HTTP requests
 - Implements parallel fetching with `Promise.all()` for multiple Pokémon queries
 - Error handling for network failures and 404 responses
+
+**Styling**: Dark-themed UI with Pokémon background
+- Background: Semi-transparent overlay (85%) over Pokémon collage artwork
+- Boxes: 50% opacity for transparency and background visibility
+- Color scheme: Dark blues, cyans, and grays with accent colors
+- Responsive design adapts to mobile and desktop screens
 
 ### Development Server
 
@@ -66,6 +83,28 @@ Preferred communication style: Simple, everyday language.
 - Can be opened directly in a browser (for simple use cases)
 - Production deployment would use the Python proxy or a proper reverse proxy (nginx, Apache)
 
+## File Structure
+
+```
+.
+├── backend/
+│   ├── src/main/java/com/example/pokedex/
+│   │   ├── PokedexApplication.java
+│   │   ├── controller/PokemonController.java
+│   │   ├── service/PokemonService.java
+│   │   └── client/PokeApiClient.java
+│   ├── src/main/resources/application.yml
+│   └── pom.xml
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   ├── styles.css
+│   └── pokemon-background.jpg
+├── server.py
+├── README.md
+└── replit.md
+```
+
 ## External Dependencies
 
 ### Third-Party APIs
@@ -83,15 +122,16 @@ Preferred communication style: Simple, everyday language.
 
 **Spring Boot**
 - **Purpose**: Backend framework for REST API development
-- **Components likely used**:
+- **Components used**:
   - Spring Web (REST endpoints)
   - Spring Boot Actuator (health checks)
   - Configuration properties management
+  - RestClient for HTTP requests
 
 ### Runtime Dependencies
 
 **Java Runtime Environment**
-- Required version: Compatible with Spring Boot (likely Java 11+)
+- Required version: Java 11+
 - Executes the compiled JAR file
 
 **Python 3**
@@ -104,3 +144,41 @@ This application does not use a persistent database. All data is:
 - Fetched from PokéAPI on-demand
 - Cached in-memory temporarily
 - Lost on application restart (by design, as Pokémon data changes infrequently)
+
+## Features Implemented
+
+1. **Search Functionality**
+   - Single Pokémon search by name or ID
+   - Multi-Pokémon search with comma-separated input
+   - Parallel API requests for fast multi-searches
+   - Error handling for not-found Pokémon
+
+2. **Display**
+   - Official artwork display for each Pokémon
+   - Type badges showing Pokémon types
+   - Height and weight information
+   - Base experience stats
+   - Abilities list (with hidden ability indicator)
+   - Detailed stat breakdown with visual bars
+   - Special tags (pseudo-legendary, dragon type, hidden ability indicators)
+
+3. **User Experience**
+   - Loading state feedback
+   - Error messages for failed searches
+   - Responsive grid layout for multiple cards
+   - Keyboard support (Enter key to search)
+   - Image download functionality
+
+4. **Performance**
+   - In-memory LRU caching with TTL
+   - Parallel requests for multi-Pokémon searches
+   - Configurable cache parameters
+
+## Key Design Decisions
+
+- **No Framework Dependencies**: Frontend uses vanilla JavaScript for simplicity and zero build overhead
+- **In-Memory Cache**: Trades memory usage for reduced API calls and better performance
+- **LRU + TTL**: Combines both strategies to manage cache effectively
+- **Python Proxy**: Simplifies development by handling CORS without requiring backend modifications
+- **Dark Theme**: Modern, eye-friendly interface with semi-transparent elements
+- **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
