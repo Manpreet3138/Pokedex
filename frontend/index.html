@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Pokédex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+    <header class="app-header">
+        <h1>Pokédex</h1>
+        <p class="subtitle">Backed by Java + PokéAPI</p>
+    </header>
+
+    <main class="app-main">
+        <section class="search-panel">
+            <label for="searchInput">Search Pokémon</label>
+            <div class="search-row">
+                <input id="searchInput"
+                       type="text"
+                       placeholder="e.g. pikachu, charizard, 25">
+                <button id="searchBtn">Search</button>
+            </div>
+            <p class="hint">Press Enter to search. Uses local Java service with caching.</p>
+        </section>
+
+        <section id="resultArea" class="result hidden">
+            <div class="result-header">
+                <div class="name-id">
+                    <h2 id="pokemonName"></h2>
+                    <span id="pokemonId" class="pill"></span>
+                </div>
+                <div id="pokemonTypes" class="types"></div>
+            </div>
+
+            <div class="result-content">
+                <div class="sprite-panel">
+                    <img id="pokemonSprite" alt="Pokemon sprite">
+                    <div id="pokemonTags" class="tags"></div>
+                </div>
+
+                <div class="meta-panel">
+                    <div class="meta-row">
+                        <span class="meta-label">Height</span>
+                        <span id="pokemonHeight" class="meta-value"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Weight</span>
+                        <span id="pokemonWeight" class="meta-value"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Base Experience</span>
+                        <span id="pokemonBaseExp" class="meta-value"></span>
+                    </div>
+
+                    <div class="meta-block">
+                        <h3>Abilities</h3>
+                        <ul id="pokemonAbilities"></ul>
+                    </div>
+                    <div class="meta-block">
+                        <h3>Base Stats</h3>
+                        <div id="pokemonStats" class="stats-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="errorArea" class="error hidden"></section>
+    </main>
+
+    <footer class="app-footer">
+        <span>Data from PokéAPI • Backend: Java Spring Boot</span>
+    </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
