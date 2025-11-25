@@ -133,6 +133,13 @@ function renderPokemonCard(data) {
     }
 
     spritePanel.appendChild(sprite);
+    
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "download-btn";
+    downloadBtn.textContent = "Download Image";
+    downloadBtn.addEventListener("click", () => downloadPokemonImage(data.name, sprite.src));
+    spritePanel.appendChild(downloadBtn);
+    
     spritePanel.appendChild(tags);
 
     const metaPanel = document.createElement("div");
@@ -250,4 +257,28 @@ function clearError() {
 function setLoading(isLoading) {
     searchBtn.disabled = isLoading;
     searchBtn.textContent = isLoading ? "Searching..." : "Search";
+}
+
+function downloadPokemonImage(pokemonName, imageUrl) {
+    if (!imageUrl) {
+        alert("Image not available for download");
+        return;
+    }
+    
+    fetch(imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${pokemonName}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(err => {
+            console.error("Download failed:", err);
+            alert("Failed to download image");
+        });
 }
