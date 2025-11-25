@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pokemon")
 @CrossOrigin(origins = "*")
@@ -26,6 +28,12 @@ public class PokemonController {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
                 .body(pokemonJson);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<String>> searchPokemon(@RequestParam String keyword) {
+        List<String> results = pokemonService.searchPokemon(keyword);
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/health")

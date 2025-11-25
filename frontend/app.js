@@ -4,11 +4,35 @@ const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const resultArea = document.getElementById("resultArea");
 const errorArea = document.getElementById("errorArea");
+const suggestionsDropdown = document.getElementById("suggestionsDropdown");
+
+let suggestionsTimeout;
 
 searchBtn.addEventListener("click", doSearch);
 searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         doSearch();
+        suggestionsDropdown.classList.add("hidden");
+    }
+});
+
+searchInput.addEventListener("input", (e) => {
+    clearTimeout(suggestionsTimeout);
+    const value = e.target.value.trim();
+    
+    if (!value) {
+        suggestionsDropdown.classList.add("hidden");
+        return;
+    }
+    
+    suggestionsTimeout = setTimeout(() => {
+        showSuggestions(value);
+    }, 200);
+});
+
+document.addEventListener("click", (e) => {
+    if (e.target !== searchInput && !suggestionsDropdown.contains(e.target)) {
+        suggestionsDropdown.classList.add("hidden");
     }
 });
 
@@ -280,5 +304,35 @@ function downloadPokemonImage(pokemonName, imageUrl) {
         .catch(err => {
             console.error("Download failed:", err);
             alert("Failed to download image");
+        });
+}
+
+function showSuggestions(keyword) {
+    fetch(`${API_BASE}/search?keyword=${encodeURIComponent(keyword)}`)
+        .then(res => res.json())
+        .then(suggestions => {
+            if (suggestions.length === 0) {
+                suggestionsDropdown.classList.add("hidden");
+                return;
+            }
+            
+            suggestionsDropdown.innerHTML = "";
+            suggestions.forEach(name => {
+                const item = document.createElement("div");
+                item.className = "suggestion-item";
+                item.textContent = name;
+                item.addEventListener("click", () => {
+                    searchInput.value = name;
+                    suggestionsDropdown.classList.add("hidden");
+                    doSearch();
+                });
+                suggestionsDropdown.appendChild(item);
+            });
+            
+            suggestionsDropdown.classList.remove("hidden");
+        })
+        .catch(err => {
+            console.error("Suggestions failed:", err);
+            suggestionsDropdown.classList.add("hidden");
         });
 }

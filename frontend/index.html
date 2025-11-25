@@ -16,9 +16,12 @@
         <section class="search-panel">
             <label for="searchInput">Search Pokémon</label>
             <div class="search-row">
-                <input id="searchInput"
-                       type="text"
-                       placeholder="e.g. pikachu, charizard, 25">
+                <div class="search-input-wrapper">
+                    <input id="searchInput"
+                           type="text"
+                           placeholder="e.g. pikachu, charizard, 25">
+                    <div id="suggestionsDropdown" class="suggestions-dropdown hidden"></div>
+                </div>
                 <button id="searchBtn">Search</button>
             </div>
         </section>

@@ -85,8 +85,13 @@ body {
     gap: 8px;
 }
 
-#searchInput {
+.search-input-wrapper {
     flex: 1;
+    position: relative;
+}
+
+#searchInput {
+    width: 100%;
     padding: 10px 12px;
     border-radius: 999px;
     border: 1px solid var(--border);
@@ -99,6 +104,34 @@ body {
 #searchInput:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent-soft);
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(2, 6, 23, 0.95);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    margin-top: -1px;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-transform: capitalize;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.suggestion-item:hover {
+    background: rgba(56, 189, 248, 0.15);
 }
 
 #searchBtn {
