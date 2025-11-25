@@ -5,17 +5,6 @@ const searchBtn = document.getElementById("searchBtn");
 const resultArea = document.getElementById("resultArea");
 const errorArea = document.getElementById("errorArea");
 
-const nameEl = document.getElementById("pokemonName");
-const idEl = document.getElementById("pokemonId");
-const typesEl = document.getElementById("pokemonTypes");
-const spriteEl = document.getElementById("pokemonSprite");
-const tagsEl = document.getElementById("pokemonTags");
-const heightEl = document.getElementById("pokemonHeight");
-const weightEl = document.getElementById("pokemonWeight");
-const baseExpEl = document.getElementById("pokemonBaseExp");
-const abilitiesEl = document.getElementById("pokemonAbilities");
-const statsEl = document.getElementById("pokemonStats");
-
 searchBtn.addEventListener("click", doSearch);
 searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -31,78 +20,154 @@ function doSearch() {
     }
 
     clearError();
+    resultArea.innerHTML = "";
+    resultArea.classList.add("hidden");
     setLoading(true);
 
-    fetch(`${API_BASE}/${encodeURIComponent(value)}`)
-        .then(async (res) => {
-            if (!res.ok) {
-                const text = await res.text().catch(() => "");
-                throw new Error(text || "Failed to fetch Pokémon.");
+    const pokemonNames = value.split(',').map(name => name.trim()).filter(name => name);
+    
+    if (pokemonNames.length === 0) {
+        showError("Please enter a Pokémon name or ID.");
+        setLoading(false);
+        return;
+    }
+
+    const fetchPromises = pokemonNames.map(name => 
+        fetch(`${API_BASE}/${encodeURIComponent(name)}`)
+            .then(async (res) => {
+                if (!res.ok) {
+                    throw new Error(`${name} not found`);
+                }
+                return res.json();
+            })
+            .then(data => ({ success: true, data, name }))
+            .catch(err => ({ success: false, error: err.message, name }))
+    );
+
+    Promise.all(fetchPromises)
+        .then(results => {
+            const successful = results.filter(r => r.success);
+            const failed = results.filter(r => !r.success);
+
+            if (successful.length > 0) {
+                resultArea.classList.remove("hidden");
+                successful.forEach(result => {
+                    renderPokemonCard(result.data);
+                });
             }
-            return res.json();
-        })
-        .then((data) => {
-            renderPokemon(data);
-        })
-        .catch((err) => {
-            console.error(err);
-            showError("Pokémon not found. Try another name or ID.");
+
+            if (failed.length > 0) {
+                const failedNames = failed.map(f => f.name).join(', ');
+                showError(`Could not find: ${failedNames}`);
+            }
+
+            if (successful.length === 0) {
+                showError("No Pokémon found. Please check your input.");
+            }
         })
         .finally(() => {
             setLoading(false);
         });
 }
 
-function renderPokemon(data) {
-    nameEl.textContent = data.name;
-    idEl.textContent = `#${String(data.id).padStart(3, "0")}`;
+function renderPokemonCard(data) {
+    const card = document.createElement("div");
+    card.className = "pokemon-card";
 
-    typesEl.innerHTML = "";
+    const header = document.createElement("div");
+    header.className = "result-header";
+
+    const nameId = document.createElement("div");
+    nameId.className = "name-id";
+
+    const name = document.createElement("h2");
+    name.textContent = data.name;
+
+    const id = document.createElement("span");
+    id.className = "pill";
+    id.textContent = `#${String(data.id).padStart(3, "0")}`;
+
+    nameId.appendChild(name);
+    nameId.appendChild(id);
+
+    const typesContainer = document.createElement("div");
+    typesContainer.className = "types";
     (data.types || []).forEach((t) => {
         const span = document.createElement("span");
         span.className = "type-pill";
         span.textContent = t.type.name;
-        typesEl.appendChild(span);
+        typesContainer.appendChild(span);
     });
 
-    const sprite =
-        data.sprites?.other?.["official-artwork"]?.front_default ||
-        data.sprites?.front_default ||
-        "";
-    spriteEl.src = sprite;
-    spriteEl.alt = data.name;
+    header.appendChild(nameId);
+    header.appendChild(typesContainer);
 
-    tagsEl.innerHTML = "";
+    const content = document.createElement("div");
+    content.className = "result-content";
+
+    const spritePanel = document.createElement("div");
+    spritePanel.className = "sprite-panel";
+
+    const sprite = document.createElement("img");
+    sprite.src = data.sprites?.other?.["official-artwork"]?.front_default ||
+                 data.sprites?.front_default || "";
+    sprite.alt = data.name;
+
+    const tags = document.createElement("div");
+    tags.className = "tags";
+
     const totalStats = (data.stats || []).reduce(
         (sum, stat) => sum + (stat.base_stat || 0),
         0
     );
-    addTag(tagsEl, `${totalStats} total base stats`);
+    addTag(tags, `${totalStats} total base stats`);
 
     if (totalStats >= 600) {
-        addTag(tagsEl, "Pseudo-legendary vibes");
+        addTag(tags, "Pseudo-legendary vibes");
     }
     if ((data.types || []).some((t) => t.type.name === "dragon")) {
-        addTag(tagsEl, "Dragon type");
+        addTag(tags, "Dragon type");
     }
     if ((data.abilities || []).some((a) => a.is_hidden)) {
-        addTag(tagsEl, "Has hidden ability");
+        addTag(tags, "Has hidden ability");
     }
+
+    spritePanel.appendChild(sprite);
+    spritePanel.appendChild(tags);
+
+    const metaPanel = document.createElement("div");
+    metaPanel.className = "meta-panel";
 
     const heightMeters = data.height / 10;
     const weightKg = data.weight / 10;
-    heightEl.textContent = `${heightMeters.toFixed(1)} m`;
-    weightEl.textContent = `${weightKg.toFixed(1)} kg`;
-    baseExpEl.textContent = data.base_experience ?? "-";
 
-    abilitiesEl.innerHTML = "";
+    const heightRow = createMetaRow("Height", `${heightMeters.toFixed(1)} m`);
+    const weightRow = createMetaRow("Weight", `${weightKg.toFixed(1)} kg`);
+    const baseExpRow = createMetaRow("Base Experience", data.base_experience ?? "-");
+
+    metaPanel.appendChild(heightRow);
+    metaPanel.appendChild(weightRow);
+    metaPanel.appendChild(baseExpRow);
+
+    const abilitiesBlock = document.createElement("div");
+    abilitiesBlock.className = "meta-block";
+    const abilitiesTitle = document.createElement("h3");
+    abilitiesTitle.textContent = "Abilities";
+    const abilitiesList = document.createElement("ul");
     (data.abilities || []).forEach((a) => {
         const li = document.createElement("li");
         li.textContent = a.ability.name + (a.is_hidden ? " (hidden)" : "");
-        abilitiesEl.appendChild(li);
+        abilitiesList.appendChild(li);
     });
+    abilitiesBlock.appendChild(abilitiesTitle);
+    abilitiesBlock.appendChild(abilitiesList);
 
-    statsEl.innerHTML = "";
+    const statsBlock = document.createElement("div");
+    statsBlock.className = "meta-block";
+    const statsTitle = document.createElement("h3");
+    statsTitle.textContent = "Base Stats";
+    const statsList = document.createElement("div");
+    statsList.className = "stats-list";
     (data.stats || []).forEach((s) => {
         const row = document.createElement("div");
         row.className = "stat-row";
@@ -130,10 +195,39 @@ function renderPokemon(data) {
         row.appendChild(barWrapper);
         row.appendChild(valueSpan);
 
-        statsEl.appendChild(row);
+        statsList.appendChild(row);
     });
+    statsBlock.appendChild(statsTitle);
+    statsBlock.appendChild(statsList);
 
-    resultArea.classList.remove("hidden");
+    metaPanel.appendChild(abilitiesBlock);
+    metaPanel.appendChild(statsBlock);
+
+    content.appendChild(spritePanel);
+    content.appendChild(metaPanel);
+
+    card.appendChild(header);
+    card.appendChild(content);
+
+    resultArea.appendChild(card);
+}
+
+function createMetaRow(label, value) {
+    const row = document.createElement("div");
+    row.className = "meta-row";
+
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "meta-label";
+    labelSpan.textContent = label;
+
+    const valueSpan = document.createElement("span");
+    valueSpan.className = "meta-value";
+    valueSpan.textContent = value;
+
+    row.appendChild(labelSpan);
+    row.appendChild(valueSpan);
+
+    return row;
 }
 
 function addTag(container, text) {
@@ -146,7 +240,6 @@ function addTag(container, text) {
 function showError(message) {
     errorArea.textContent = message;
     errorArea.classList.remove("hidden");
-    resultArea.classList.add("hidden");
 }
 
 function clearError() {
