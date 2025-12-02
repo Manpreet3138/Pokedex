@@ -1,17 +1,26 @@
-# Use Java 17
-FROM eclipse-temurin:17-jdk
+# -------- BUILD STAGE --------
+FROM maven:3.9-eclipse-temurin-17 AS build
 
-# Set working dir
 WORKDIR /app
 
-# Copy Maven project
-COPY . .
+# Copy only backend folder
+COPY backend/pom.xml .
+COPY backend/src ./src
 
-# Build JAR
-RUN ./mvnw -B -DskipTests clean package
+# Build the Spring Boot JAR
+RUN mvn -B -DskipTests clean package
 
-# Expose port
+
+# -------- RUN STAGE --------
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# Copy built jar
+COPY --from=build /app/target/*.jar app.jar
+
+# Render sets PORT env var
+ENV PORT=8080
 EXPOSE 8080
 
-# Run the jar
-CMD ["java", "-jar", "target/pokedex-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]
