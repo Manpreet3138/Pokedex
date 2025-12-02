@@ -1,5 +1,5 @@
 # Java Pokédex
-
+#live :- https://manpreet3138.github.io/Pokedex/
 ## Overview
 
 This is a full-stack Pokédex application that allows users to search for Pokémon by name or ID. The backend is built with Java and Spring Boot, serving as a proxy/cache layer to the public PokéAPI. The frontend is a vanilla JavaScript single-page application with a modern, dark-themed UI with a Pokémon background. The application implements an in-memory LRU cache with TTL expiration to optimize API calls and reduce load on the external PokéAPI service.
