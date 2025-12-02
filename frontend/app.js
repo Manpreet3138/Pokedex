@@ -1,4 +1,4 @@
-const API_BASE = "https://pokedex-chhj.onrender.com";
+const API_BASE = "https://pokedex-chhjj.onrender.com/api/pokemon";
 
 const searchInput = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
